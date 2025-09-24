@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import {
   BarChart3,
   Target,
-  DollarSign,
-  Lightbulb,
-  Activity,
   ChevronLeft,
   ChevronRight,
   X,
+  DollarSign,
+  Activity,
+  LogOut,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -23,31 +23,10 @@ interface SidebarProps {
 }
 
 const menuItems = [
-  {
-    id: "executive-overview",
-    label: "Executive Overview",
-    icon: BarChart3,
-  },
-  {
-    id: "campaign-management",
-    label: "Campaign Management",
-    icon: Target,
-  },
-  {
-    id: "budget-optimization",
-    label: "Budget Optimization",
-    icon: DollarSign,
-  },
-  {
-    id: "creative-insights",
-    label: "Creative Insights",
-    icon: Lightbulb,
-  },
-  {
-    id: "real-time-monitoring",
-    label: "Real-Time Monitoring",
-    icon: Activity,
-  },
+  { id: "executive-overview", label: "Executive Overview", icon: BarChart3 },
+  { id: "campaign-management", label: "Campaign Management", icon: Target },
+  { id: "budget-optimization", label: "Budget Optimization", icon: DollarSign },
+  { id: "real-time-monitoring", label: "Real-Time Monitoring", icon: Activity },
 ];
 
 export function Sidebar({
@@ -60,18 +39,25 @@ export function Sidebar({
 }: SidebarProps) {
   const handleMenuItemClick = (sectionId: string) => {
     setActiveSection(sectionId);
-    setMobileOpen(false); // Close mobile sidebar after selection
+    setMobileOpen(false);
+  };
+
+  const handleLogout = () => {
+    console.log("Logging out...");
+    // logout logic
   };
 
   return (
     <>
+      {/* Desktop Sidebar */}
       <div
         className={cn(
-          "fixed left-0 top-0 h-full bg-sidebar border-r border-sidebar-border transition-all duration-300 z-50",
-          "hidden lg:block", // Hidden on mobile, visible on desktop
+          "fixed left-0 top-0 h-full bg-sidebar border-r border-sidebar-border transition-all duration-300 z-50 flex flex-col",
+          "hidden lg:flex",
           collapsed ? "w-16" : "w-64"
         )}
       >
+        {/* Header */}
         <div className="h-16 lg:h-19 flex items-center justify-between p-4 border-b border-sidebar-border">
           {!collapsed && (
             <div className="flex items-center space-x-3">
@@ -85,12 +71,11 @@ export function Sidebar({
               </span>
             </div>
           )}
-
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setCollapsed(!collapsed)}
-            className="text-sidebar-foreground hover:bg-sidebar-accent"
+            className="text-sidebar-foreground hover:bg-[#9ca3af]"
           >
             {collapsed ? (
               <ChevronRight className="h-4 w-4" />
@@ -100,23 +85,23 @@ export function Sidebar({
           </Button>
         </div>
 
-        <nav className="p-4 space-y-2">
+        {/* Nav */}
+        <nav className="p-4 space-y-2 flex-1">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeSection === item.id;
-
             return (
               <Button
                 key={item.id}
-                variant={isActive ? "default" : "ghost"}
+                variant="ghost"
                 className={cn(
                   "w-full justify-start text-left",
                   collapsed ? "px-2" : "px-3",
                   isActive
-                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    ? "bg-[#1d4ed8] text-white"
+                    : "text-sidebar-foreground hover:bg-[#d2d3d5] hover:text-black"
                 )}
-                onClick={() => setActiveSection(item.id)}
+                onClick={() => handleMenuItemClick(item.id)}
               >
                 <Icon className={cn("h-4 w-4", collapsed ? "" : "mr-3")} />
                 {!collapsed && <span className="text-sm">{item.label}</span>}
@@ -124,15 +109,33 @@ export function Sidebar({
             );
           })}
         </nav>
+
+        {/* Logout Button (Desktop) */}
+        <div className="p-4 border-t border-sidebar-border">
+          <Button
+            variant="ghost"
+            onClick={handleLogout}
+            className={cn(
+              "w-full justify-start text-left text-[#ef4444]",
+              collapsed ? "px-2" : "px-3",
+              "hover:bg-[#fee2e2] hover:text-[#991b1b]"
+            )}
+          >
+            <LogOut className={cn("h-4 w-4", collapsed ? "" : "mr-3")} />
+            {!collapsed && <span className="text-sm">Logout</span>}
+          </Button>
+        </div>
       </div>
 
+      {/* Mobile Sidebar */}
       <div
         className={cn(
-          "fixed left-0 top-0 h-full bg-sidebar border-r border-sidebar-border transition-transform duration-300 z-50",
-          "lg:hidden w-64", // Only visible on mobile/tablet
+          "fixed left-0 top-0 h-full bg-sidebar border-r border-sidebar-border transition-transform duration-300 z-50 flex flex-col",
+          "lg:hidden w-64",
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
+        {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
@@ -146,26 +149,26 @@ export function Sidebar({
             variant="ghost"
             size="sm"
             onClick={() => setMobileOpen(false)}
-            className="text-sidebar-foreground hover:bg-sidebar-accent"
+            className="text-sidebar-foreground hover:bg-[#9ca3afd6]"
           >
             <X className="h-4 w-4" />
           </Button>
         </div>
 
-        <nav className="p-4 space-y-2">
+        {/* Nav */}
+        <nav className="p-4 space-y-2 flex-1">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeSection === item.id;
-
             return (
               <Button
                 key={item.id}
-                variant={isActive ? "default" : "ghost"}
+                variant="ghost"
                 className={cn(
                   "w-full justify-start text-left px-3",
                   isActive
-                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    ? "bg-[#1d4ed8] text-white"
+                    : "text-sidebar-foreground hover:bg-[#9ca3afbb] hover:text-black"
                 )}
                 onClick={() => handleMenuItemClick(item.id)}
               >
@@ -175,6 +178,18 @@ export function Sidebar({
             );
           })}
         </nav>
+
+        {/* Logout Button (Mobile) */}
+        <div className="p-4 border-t border-sidebar-border">
+          <Button
+            variant="ghost"
+            onClick={handleLogout}
+            className="w-full justify-start text-left text-[#ef4444] hover:bg-[#fee2e2] hover:text-[#991b1b]"
+          >
+            <LogOut className="h-4 w-4 mr-3" />
+            <span className="text-sm">Logout</span>
+          </Button>
+        </div>
       </div>
     </>
   );

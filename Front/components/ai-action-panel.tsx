@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,60 +16,41 @@ import {
   X,
 } from "lucide-react";
 
-const aiInsights = [
-  {
-    id: 1,
-    type: "optimization",
-    priority: "high",
-    title: "Budget Reallocation Opportunity",
-    description:
-      "Move $2,000 from underperforming Product Launch to high-ROAS Summer Sale campaign",
-    impact: "+23% conversions",
-    confidence: 92,
-  },
-  {
-    id: 2,
-    type: "creative",
-    priority: "medium",
-    title: "Creative Refresh Needed",
-    description:
-      "Brand Awareness carousel showing creative fatigue. CTR declined 18% over 2 weeks",
-    impact: "+15% CTR",
-    confidence: 87,
-  },
-  {
-    id: 3,
-    type: "targeting",
-    priority: "high",
-    title: "Audience Expansion Opportunity",
-    description:
-      "Similar audiences to your best converters show 4.2x ROAS potential",
-    impact: "+34% reach",
-    confidence: 89,
-  },
-  {
-    id: 4,
-    type: "bidding",
-    priority: "low",
-    title: "Bid Strategy Optimization",
-    description:
-      "Switch to Target ROAS bidding for better cost efficiency on Google Ads",
-    impact: "-12% CPC",
-    confidence: 78,
-  },
-];
-
-const quickActions = [
-  { icon: TrendingUp, label: "Scale Top Performers", count: 3 },
-  { icon: DollarSign, label: "Optimize Budgets", count: 5 },
-  { icon: Target, label: "Refine Targeting", count: 2 },
-  { icon: Lightbulb, label: "Creative Suggestions", count: 7 },
-];
-
 export function AIActionPanel() {
   const [collapsed, setCollapsed] = useState(false);
-  const [flaskReply, setFlaskReply] = useState<string>("");
-  const [loading, setLoading] = useState(false);
+  const [aiInsights, setAiInsights] = useState<any[]>([]);
+
+  // Sample campaign data directly inside the component
+  const campaigns = [
+    {
+      Campaign_Name: "Campaign_8",
+      Location: "Mumbai",
+      Device: "Desktop",
+      Keyword: "travel",
+      Ad_Date: "2024-06-23",
+      Impressions: 2661,
+      Clicks: 282.24,
+      Conversion_Rate: 0.1615,
+      Leads: 81.12,
+      Conversions: 49.08,
+      Sale_Amount: 14191.8,
+      Cost: 445.33,
+    },
+    {
+      Campaign_Name: "Campaign_11",
+      Location: "Bengaluru",
+      Device: "Desktop",
+      Keyword: "software",
+      Ad_Date: "2024-09-12",
+      Impressions: 7830,
+      Clicks: 800.61,
+      Conversion_Rate: 0.167,
+      Leads: 219.75,
+      Conversions: 132.8,
+      Sale_Amount: 34624.0,
+      Cost: 1300.43,
+    },
+  ];
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -99,23 +80,86 @@ export function AIActionPanel() {
     }
   };
 
-  const handleConversation = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch("http://127.0.0.1:5000/api/conversation", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: "Hello from frontend" }),
+  // Generate insights dynamically from sample data
+  useEffect(() => {
+    if (!campaigns || campaigns.length === 0) return;
+
+    const enriched = campaigns.map((c) => ({
+      ...c,
+      CTR: c.Clicks / c.Impressions,
+      ROAS: c.Sale_Amount / c.Cost,
+      CPC: c.Cost / c.Clicks,
+    }));
+
+    const insights: any[] = [];
+
+    // Budget Reallocation
+    const sortedByROAS = [...enriched].sort((a, b) => b.ROAS - a.ROAS);
+    if (sortedByROAS.length >= 2) {
+      const low = sortedByROAS[sortedByROAS.length - 1];
+      const high = sortedByROAS[0];
+      insights.push({
+        id: 1,
+        type: "optimization",
+        priority: "high",
+        title: "Budget Reallocation Opportunity",
+        description: `Move $${Math.round(low.Cost)} from underperforming ${
+          low.Campaign_Name
+        } to high-ROAS ${high.Campaign_Name} campaign`,
+        impact: `+${Math.round((high.ROAS - low.ROAS) * 100)}% conversions`,
+        confidence: 92,
       });
-      const data = await response.json();
-      setFlaskReply(data.reply);
-    } catch (err) {
-      console.error("Error talking to Flask:", err);
-      setFlaskReply("❌ Failed to reach Flask API");
-    } finally {
-      setLoading(false);
     }
-  };
+
+    // Creative Refresh
+    enriched.forEach((c, i) => {
+      if (c.CTR < 0.1) {
+        insights.push({
+          id: 2 + i,
+          type: "creative",
+          priority: "medium",
+          title: "Creative Refresh Needed",
+          description: `${c.Campaign_Name} has low CTR (${(c.CTR * 100).toFixed(
+            1
+          )}%). Consider refreshing creatives.`,
+          impact: `+15% CTR`,
+          confidence: 87,
+        });
+      }
+    });
+
+    // Audience Expansion
+    enriched.forEach((c, i) => {
+      if (c.ROAS > 2) {
+        insights.push({
+          id: 20 + i,
+          type: "targeting",
+          priority: "high",
+          title: "Audience Expansion Opportunity",
+          description: `Similar audiences to ${c.Campaign_Name} may yield high ROAS.`,
+          impact: `+34% reach`,
+          confidence: 89,
+        });
+      }
+    });
+
+    // Bid Strategy Optimization
+    enriched.forEach((c, i) => {
+      if (c.ROAS < 2) {
+        insights.push({
+          id: 50 + i,
+          type: "bidding",
+          priority: "low",
+          title: "Bid Strategy Optimization",
+          description: `Consider switching bidding strategy for ${c.Campaign_Name} to improve cost efficiency.`,
+          impact: `-12% CPC`,
+          confidence: 78,
+        });
+      }
+    });
+
+    setAiInsights(insights);
+  }, []);
 
   if (collapsed) {
     return (
@@ -153,36 +197,6 @@ export function AIActionPanel() {
 
       <ScrollArea className="flex-1 h-0">
         <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
-          {/* <div>
-            <h3 className="font-medium mb-2 sm:mb-3 text-sm sm:text-base">
-              Quick Actions
-            </h3>
-            <div className="grid grid-cols-2 gap-2">
-              {quickActions.map((action, index) => {
-                const Icon = action.icon;
-                return (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    className="h-14 sm:h-16 flex flex-col items-center justify-center relative bg-transparent text-xs"
-                  >
-                    <Icon className="h-3 w-3 sm:h-4 sm:w-4 mb-1" />
-                    <span className="text-xs text-center leading-tight">
-                      {action.label}
-                    </span>
-                    {action.count > 0 && (
-                      <Badge className="absolute -top-1 -right-1 h-4 w-4 sm:h-5 sm:w-5 rounded-full p-0 flex items-center justify-center text-xs">
-                        {action.count}
-                      </Badge>
-                    )}
-                  </Button>
-                );
-              })}
-            </div>
-          </div> */}
-
-          {/* <Separator /> */}
-
           <div>
             <h3 className="font-medium mb-2 sm:mb-3 text-sm sm:text-base">
               AI Insights
@@ -223,55 +237,6 @@ export function AIActionPanel() {
                 </Card>
               ))}
             </div>
-          </div>
-
-          <Separator />
-
-          <div>
-            <h3 className="font-medium mb-2 sm:mb-3 text-sm sm:text-base">
-              Today's Summary
-            </h3>
-            <div className="space-y-2 text-xs sm:text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Total Spend</span>
-                <span className="font-medium">$3,247</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Conversions</span>
-                <span className="font-medium">89</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Avg. ROAS</span>
-                <span className="font-medium text-green-600">4.2x</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Active Alerts</span>
-                <span className="font-medium text-yellow-600">3</span>
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
-          <div>
-            <h3 className="font-medium mb-2 sm:mb-3 text-sm sm:text-base">
-              Ask AI Assistant
-            </h3>
-            <Button
-              variant="outline"
-              className="w-full text-xs sm:text-sm bg-transparent"
-              onClick={handleConversation}
-              disabled={loading}
-            >
-              <Bot className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
-              {loading ? "Thinking..." : "Start Conversation"}
-            </Button>
-
-            {flaskReply && (
-              <p className="mt-2 text-xs sm:text-sm text-muted-foreground">
-                {flaskReply}
-              </p>
-            )}
           </div>
         </div>
       </ScrollArea>

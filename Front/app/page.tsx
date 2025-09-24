@@ -19,16 +19,16 @@ export default function Dashboard() {
     switch (activeSection) {
       case "executive-overview":
         return <ExecutiveOverview />
-      case "campaign-management":
-        return <CampaignManagement />
-      case "budget-optimization":
-        return <BudgetOptimization />
-      case "creative-insights":
-        return <CreativeInsights />
-      case "real-time-monitoring":
-        return <RealTimeMonitoring />
-      default:
-        return <ExecutiveOverview />
+      // case "campaign-management":
+      //   return <CampaignManagement />
+      // case "budget-optimization":
+      //   return <BudgetOptimization />
+      // case "creative-insights":
+      //   return <CreativeInsights />
+      // case "real-time-monitoring":
+      //   return <RealTimeMonitoring />
+      // default:
+      //   return <ExecutiveOverview />
     }
   }
 
