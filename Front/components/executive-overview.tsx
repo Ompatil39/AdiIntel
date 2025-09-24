@@ -42,11 +42,11 @@ const kpiData = [
 ];
 
 const campaignPerformance = [
-  { name: "Search Ads", value: 35, color: "hsl(var(--chart-1))" },
-  { name: "Display", value: 25, color: "hsl(var(--chart-2))" },
-  { name: "Social", value: 20, color: "hsl(var(--chart-3))" },
-  { name: "Video", value: 15, color: "hsl(var(--chart-4))" },
-  { name: "Email", value: 5, color: "hsl(var(--chart-5))" },
+  { name: "Search Ads", value: 35, color: "var(--chart-1)" },
+  { name: "Display", value: 25, color: "var(--chart-2)" },
+  { name: "Social", value: 20, color: "var(--chart-3)" },
+  { name: "Video", value: 15, color: "var(--chart-4)" },
+  { name: "Email", value: 5, color: "var(--chart-5)" },
 ];
 
 const platformData = [
@@ -200,13 +200,13 @@ export function ExecutiveOverview() {
                 <Line
                   type="monotone"
                   dataKey="roi"
-                  stroke="hsl(var(--chart-1))"
+                  stroke="#3b82f6"
                   strokeWidth={2}
                 />
                 <Line
                   type="monotone"
                   dataKey="ctr"
-                  stroke="hsl(var(--chart-2))"
+                  stroke="#10b981"
                   strokeWidth={2}
                 />
               </LineChart>
