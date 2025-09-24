@@ -1,11 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import {
   Bot,
   TrendingUp,
@@ -17,14 +25,23 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const handleAi = () => {
-  console.log("AI Conversation initiated...");
-  // AI conversation logic
-};
-
 export function AIActionPanel() {
   const [collapsed, setCollapsed] = useState(false);
   const [aiInsights, setAiInsights] = useState<any[]>([]);
+  const [botOpen, setBotOpen] = useState(false);
+  const [messages, setMessages] = useState<
+    { id: string; role: "user" | "assistant"; content: string }[]
+  >([
+    {
+      id: "welcome",
+      role: "assistant",
+      content:
+        "Hi! I’m your AdIntelli AI assistant. Ask me about campaign performance, budget shifts, or optimization ideas.",
+    },
+  ]);
+  const [inputValue, setInputValue] = useState("");
+  const [isSending, setIsSending] = useState(false);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
 
   // Sample campaign data directly inside the component
   const campaigns = [
@@ -167,6 +184,81 @@ export function AIActionPanel() {
     setAiInsights(insights);
   }, []);
 
+  useEffect(() => {
+    if (!botOpen) return;
+    const el = scrollRef.current;
+    if (el) {
+      el.scrollTop = el.scrollHeight;
+    }
+  }, [botOpen, messages.length]);
+
+  const openBot = () => {
+    setBotOpen(true);
+  };
+
+  const closeBot = () => {
+    setBotOpen(false);
+  };
+
+  const clearConversation = () => {
+    setMessages([
+      {
+        id: "welcome",
+        role: "assistant",
+        content:
+          "Hi! I’m your AdIntelli AI assistant. Ask me about campaign performance, budget shifts, or optimization ideas.",
+      },
+    ]);
+  };
+
+  const sendMessage = async () => {
+    const trimmed = inputValue.trim();
+    if (!trimmed || isSending) return;
+    const userMsg = {
+      id: `${Date.now()}-user`,
+      role: "user" as const,
+      content: trimmed,
+    };
+    setMessages((m) => [...m, userMsg]);
+    setInputValue("");
+    setIsSending(true);
+
+    try {
+      // TODO: Integrate Flask backend here
+      // Example (uncomment and adapt when integrating):
+      // const res = await fetch('http://127.0.0.1:5000/chat', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ message: trimmed })
+      // });
+      // const data = await res.json();
+      // const assistantText = data.reply; // Flask should return { reply: string }
+
+      // For now, simulate a short thoughtful response with a delay
+      await new Promise((r) => setTimeout(r, 600));
+      const assistantText =
+        "Got it. I’ll analyze your campaigns and suggest high-ROAS reallocations. You can also ask for a specific campaign’s CTR or CPA.";
+
+      const botMsg = {
+        id: `${Date.now()}-bot`,
+        role: "assistant" as const,
+        content: assistantText,
+      };
+      setMessages((m) => [...m, botMsg]);
+    } catch (err) {
+      const errorMsg = {
+        id: `${Date.now()}-error`,
+        role: "assistant" as const,
+        content: "Sorry, I couldn’t reach the server. Please try again.",
+      };
+      setMessages((m) => [...m, errorMsg]);
+    } finally {
+      setIsSending(false);
+      const el = scrollRef.current;
+      if (el) el.scrollTop = el.scrollHeight;
+    }
+  };
+
   if (collapsed) {
     return (
       // MODIFIED: Added flex utilities to position buttons at top and bottom
@@ -185,7 +277,7 @@ export function AIActionPanel() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={handleAi}
+          onClick={openBot}
           className="w-full h-10 bg-[var(--primary-100)] text-[var(--primary-700)]"
         >
           <Bot className="h-4 w-4" />
@@ -263,7 +355,7 @@ export function AIActionPanel() {
       <div className="p-4 border-t border-sidebar-border">
         <Button
           variant="ghost"
-          onClick={handleAi}
+          onClick={openBot}
           className={cn(
             "w-full justify-start text-left bg-[var(--primary-100)] text-[var(--primary-700)]"
             // Note: `collapsed`-related classes are not needed here but are harmless
@@ -273,6 +365,113 @@ export function AIActionPanel() {
           <span>AI Conversation</span>
         </Button>
       </div>
+
+      {/* AI Bot Popup */}
+      <Dialog open={botOpen} onOpenChange={(o) => (o ? openBot() : closeBot())}>
+        <DialogContent className="sm:max-w-xl p-0 overflow-hidden">
+          <DialogHeader className="p-4 pb-2">
+            <DialogTitle className="flex items-center gap-2">
+              <Bot className="h-5 w-5 text-primary" /> AI Conversation
+            </DialogTitle>
+            <DialogDescription className="text-xs">
+              Ask about performance, budgets, keywords, creatives, or targets.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="px-4 pb-4">
+            <div className="mb-2 flex items-center justify-end">
+              <Button variant="ghost" size="sm" onClick={clearConversation}>
+                Clear conversation
+              </Button>
+            </div>
+            <div
+              ref={scrollRef}
+              className="h-80 sm:h-96 overflow-y-auto rounded-md border bg-card p-3"
+            >
+              <div className="space-y-3">
+                {messages.map((m) => (
+                  <div
+                    key={m.id}
+                    className={cn(
+                      "flex w-full",
+                      m.role === "user" ? "justify-end" : "justify-start"
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "max-w-[85%] rounded-md px-3 py-2 text-sm shadow-sm",
+                        m.role === "user"
+                          ? "bg-[var(--primary-100)] text-[var(--primary-700)]"
+                          : "bg-secondary text-foreground border"
+                      )}
+                    >
+                      {m.content}
+                    </div>
+                  </div>
+                ))}
+                {isSending && (
+                  <div className="flex justify-start">
+                    <div className="bg-secondary border text-muted-foreground max-w-[85%] rounded-md px-3 py-2 text-sm shadow-sm">
+                      Thinking…
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-3 flex items-center gap-2">
+              <Input
+                placeholder="Type your question…"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
+                className="flex-1"
+              />
+              <Button
+                onClick={sendMessage}
+                disabled={isSending || inputValue.trim().length === 0}
+              >
+                Send
+              </Button>
+            </div>
+
+            <div className="mt-2 flex flex-wrap gap-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() =>
+                  setInputValue("Where should I reallocate budget this week?")
+                }
+              >
+                Suggest budget moves
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() =>
+                  setInputValue("What is the CTR trend for Campaign_8?")
+                }
+              >
+                CTR trend
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() =>
+                  setInputValue("Any creative refresh recommendations?")
+                }
+              >
+                Creative ideas
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,15 +1,24 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Bell, Search, Settings, Menu, X, AlertCircle, CheckCircle, Clock } from "lucide-react"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Bell,
+  Search,
+  Settings,
+  Menu,
+  X,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+} from "lucide-react";
 
 interface HeaderProps {
-  onMenuClick: () => void
-  sidebarCollapsed: boolean
+  onMenuClick: () => void;
+  sidebarCollapsed: boolean;
 }
 
 const notifications = [
@@ -43,11 +52,11 @@ const notifications = [
     icon: Clock,
     color: "text-blue-500",
   },
-]
+];
 
 export function Header({ onMenuClick, sidebarCollapsed }: HeaderProps) {
-  const [showNotifications, setShowNotifications] = useState(false)
-  const unreadCount = notifications.filter((n) => !n.read).length
+  const [showNotifications, setShowNotifications] = useState(false);
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
     <header className="h-16 lg:h-19 border-b border-border bg-card px-3 sm:px-4 lg:px-6 flex items-center justify-between relative">
@@ -84,10 +93,10 @@ export function Header({ onMenuClick, sidebarCollapsed }: HeaderProps) {
           </Button>
 
           {showNotifications && (
-            <Card className="absolute right-0 top-12 w-80 z-50 shadow-lg">
+            <Card className="absolute right-0 top-12 w-80 z-50 shadow-lg !gap-0">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm">Notifications</CardTitle>
+                  <CardTitle className="text-sm !pb=0">Notifications</CardTitle>
                   <Button
                     variant="ghost"
                     size="sm"
