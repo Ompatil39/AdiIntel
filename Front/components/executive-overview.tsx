@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -22,7 +23,7 @@ import {
 } from "recharts";
 import {
   TrendingUp,
-  IndianRupee,
+  DollarSign,
   MousePointer,
   Eye,
   Users,
@@ -30,6 +31,7 @@ import {
   Facebook,
   Linkedin,
   Twitter,
+  Loader2,
 } from "lucide-react";
 
 const kpiData = [
@@ -93,6 +95,84 @@ const platformData = [
 ];
 
 export function ExecutiveOverview() {
+  const [roi, setROI] = useState<number | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const FLASK_BASE_URL = "http://localhost:5000";
+
+  useEffect(() => {
+    let isMounted = true; // Prevent state updates if component unmounts
+
+    const initializeData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Step 1: Trigger data fetch from Postman API
+        console.log("🚀 Starting data fetch...");
+        const dataResponse = await fetch(`${FLASK_BASE_URL}/`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!dataResponse.ok) {
+          throw new Error(`Data fetch failed: ${dataResponse.status}`);
+        }
+
+        const dataResult = await dataResponse.json();
+        console.log("✅ Data fetch initiated:", dataResult);
+
+        // Step 2: Wait for data insertion to complete
+        console.log("⏳ Waiting for data insertion...");
+        await new Promise(resolve => setTimeout(resolve, 0)); // Wait 5 seconds
+
+        // Step 3: Calculate ROI
+        console.log("💰 Calculating ROI...");
+        const roiResponse = await fetch(`${FLASK_BASE_URL}/calcROI`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!roiResponse.ok) {
+          throw new Error(`ROI calculation failed: ${roiResponse.status}`);
+        }
+
+        const roiResult = await roiResponse.json();
+        console.log("📊 ROI result:", roiResult);
+
+        if (isMounted) {
+          if (roiResult.status === "success" && typeof roiResult.roi === "number") {
+            setROI(roiResult.roi);
+          } else {
+            throw new Error(roiResult.message || "Invalid ROI response");
+          }
+        }
+
+      } catch (err) {
+        console.error("❌ Error:", err);
+        if (isMounted) {
+          setError(`${err instanceof Error ? err.message : 'Unknown error'}`);
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    initializeData();
+
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
+  }, []); // Empty dependency array - runs only once on mount
+
   const getPerformanceColor = (performance: string) => {
     switch (performance) {
       case "excellent":
@@ -118,20 +198,44 @@ export function ExecutiveOverview() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+        {/* Total ROI Card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total ROI</CardTitle>
-            <IndianRupee className="h-4 w-4 text-muted-foreground" />
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-xl sm:text-2xl font-bold">6.1x</div>
-            <div className="flex items-center text-xs text-green-600">
-              <TrendingUp className="h-3 w-3 mr-1" />
-              +18.2% from last month
-            </div>
-          </CardContent>
+  <div className="text-xl sm:text-2xl font-bold">
+    {loading ? (
+      <div className="flex items-center space-x-2">
+        <Loader2 className="h-4 w-4 animate-spin" />
+        <span>Loading...</span>
+      </div>
+    ) : error ? (
+      <span className="text-red-600">Error</span>
+    ) : roi !== null ? (
+      `${roi.toFixed(2)}%`
+    ) : (
+      "No data"
+    )}
+  </div>
+
+  {!loading && !error && roi !== null && (
+    <div className="flex items-center text-xs text-green-600">
+      <TrendingUp className="h-3 w-3 mr-1" />
+      {roi >= 0 ? "+" : "-"}
+      {roi.toFixed(1)}% from last month
+    </div>
+  )}
+
+  {error && (
+    <p className="text-xs text-red-600 mt-1">{error}</p>
+  )}
+</CardContent>
+
         </Card>
 
+        {/* Click-Through Rate Card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -148,6 +252,7 @@ export function ExecutiveOverview() {
           </CardContent>
         </Card>
 
+        {/* Conversions Card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Conversions</CardTitle>
@@ -162,6 +267,7 @@ export function ExecutiveOverview() {
           </CardContent>
         </Card>
 
+        {/* Campaign Score Card */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -176,22 +282,17 @@ export function ExecutiveOverview() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
+      {/* Performance Trends Chart */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg sm:text-xl">
-              Performance Trends
-            </CardTitle>
-            <CardDescription className="text-sm">
-              ROI and CTR over the last 6 months
+            <CardTitle>Performance Trends</CardTitle>
+            <CardDescription>
+              Monthly ROI and conversion trends over time
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer
-              width="100%"
-              height={250}
-              className="sm:h-[300px]"
-            >
+            <ResponsiveContainer width="100%" height={300}>
               <LineChart data={kpiData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
@@ -200,13 +301,13 @@ export function ExecutiveOverview() {
                 <Line
                   type="monotone"
                   dataKey="roi"
-                  stroke="#3b82f6"
+                  stroke="hsl(var(--primary))"
                   strokeWidth={2}
                 />
                 <Line
                   type="monotone"
-                  dataKey="ctr"
-                  stroke="#10b981"
+                  dataKey="conversions"
+                  stroke="hsl(var(--secondary))"
                   strokeWidth={2}
                 />
               </LineChart>
@@ -214,31 +315,25 @@ export function ExecutiveOverview() {
           </CardContent>
         </Card>
 
+        {/* Campaign Distribution */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg sm:text-xl">
-              Campaign Distribution
-            </CardTitle>
-            <CardDescription className="text-sm">
-              Performance by campaign type
+            <CardTitle>Campaign Distribution</CardTitle>
+            <CardDescription>
+              Performance breakdown by campaign type
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer
-              width="100%"
-              height={250}
-              className="sm:h-[300px]"
-            >
+            <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
                   data={campaignPerformance}
                   cx="50%"
                   cy="50%"
-                  innerRadius={40}
-                  outerRadius={100}
+                  innerRadius={60}
+                  outerRadius={120}
                   paddingAngle={5}
                   dataKey="value"
-                  className="sm:inner-radius-[60px] sm:outer-radius-[120px]"
                 >
                   {campaignPerformance.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
@@ -251,6 +346,7 @@ export function ExecutiveOverview() {
         </Card>
       </div>
 
+      {/* Platform Performance */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg sm:text-xl">
