@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   Bot,
   TrendingUp,
-  DollarSign,
+  IndianRupee,
   Target,
   Lightbulb,
   ChevronRight,
@@ -80,7 +80,7 @@ export function AIActionPanel() {
       case "targeting":
         return <Target className="h-4 w-4" />;
       case "bidding":
-        return <DollarSign className="h-4 w-4" />;
+        return <IndianRupee className="h-4 w-4" />;
       default:
         return <Bot className="h-4 w-4" />;
     }

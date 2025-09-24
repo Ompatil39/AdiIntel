@@ -8,7 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
-  DollarSign,
+  IndianRupee,
   Activity,
   LogOut,
 } from "lucide-react";
@@ -25,7 +25,11 @@ interface SidebarProps {
 const menuItems = [
   { id: "executive-overview", label: "Executive Overview", icon: BarChart3 },
   { id: "campaign-management", label: "Campaign Management", icon: Target },
-  { id: "budget-optimization", label: "Budget Optimization", icon: DollarSign },
+  {
+    id: "budget-optimization",
+    label: "Budget Optimization",
+    icon: IndianRupee,
+  },
   { id: "real-time-monitoring", label: "Real-Time Monitoring", icon: Activity },
 ];
 

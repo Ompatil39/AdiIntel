@@ -1,16 +1,45 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { Slider } from "@/components/ui/slider"
-import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
-import { DollarSign, TrendingUp, AlertCircle, Target, Zap } from "lucide-react"
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Slider } from "@/components/ui/slider";
+import {
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  IndianRupee,
+  TrendingUp,
+  AlertCircle,
+  Target,
+  Zap,
+} from "lucide-react";
 
 const budgetData = [
-  { campaign: "Summer Sale 2024", allocated: 5000, spent: 3200, remaining: 1800, performance: 4.2, status: "optimal" },
+  {
+    campaign: "Summer Sale 2024",
+    allocated: 5000,
+    spent: 3200,
+    remaining: 1800,
+    performance: 4.2,
+    status: "optimal",
+  },
   {
     campaign: "Brand Awareness Q2",
     allocated: 8000,
@@ -19,7 +48,14 @@ const budgetData = [
     performance: 3.8,
     status: "underspend",
   },
-  { campaign: "Product Launch", allocated: 3000, spent: 2800, remaining: 200, performance: 2.9, status: "overspend" },
+  {
+    campaign: "Product Launch",
+    allocated: 3000,
+    spent: 2800,
+    remaining: 200,
+    performance: 2.9,
+    status: "overspend",
+  },
   {
     campaign: "Retargeting Campaign",
     allocated: 2500,
@@ -28,7 +64,7 @@ const budgetData = [
     performance: 5.1,
     status: "optimal",
   },
-]
+];
 
 const forecastData = [
   { month: "Jul", current: 28000, optimized: 32000, roi: 4.2 },
@@ -37,49 +73,53 @@ const forecastData = [
   { month: "Oct", current: 35000, optimized: 43000, roi: 5.1 },
   { month: "Nov", current: 40000, optimized: 48000, roi: 5.3 },
   { month: "Dec", current: 45000, optimized: 54000, roi: 5.6 },
-]
+];
 
 const allocationData = [
   { platform: "Google Ads", current: 45, recommended: 52, performance: 4.8 },
   { platform: "Facebook", current: 30, recommended: 28, performance: 3.9 },
   { platform: "LinkedIn", current: 15, recommended: 12, performance: 3.2 },
   { platform: "Twitter", current: 10, recommended: 8, performance: 2.8 },
-]
+];
 
 export function BudgetOptimization() {
-  const [budgetSlider, setBudgetSlider] = useState([75000])
+  const [budgetSlider, setBudgetSlider] = useState([75000]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "optimal":
-        return "bg-green-100 text-green-800 border-green-200"
+        return "bg-green-100 text-green-800 border-green-200";
       case "underspend":
-        return "bg-blue-100 text-blue-800 border-blue-200"
+        return "bg-blue-100 text-blue-800 border-blue-200";
       case "overspend":
-        return "bg-red-100 text-red-800 border-red-200"
+        return "bg-red-100 text-red-800 border-red-200";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
-  }
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "optimal":
-        return <Target className="h-4 w-4" />
+        return <Target className="h-4 w-4" />;
       case "underspend":
-        return <TrendingUp className="h-4 w-4" />
+        return <TrendingUp className="h-4 w-4" />;
       case "overspend":
-        return <AlertCircle className="h-4 w-4" />
+        return <AlertCircle className="h-4 w-4" />;
       default:
-        return null
+        return null;
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Budget Optimization</h1>
-        <p className="text-muted-foreground">AI-powered budget allocation and spending recommendations</p>
+        <h1 className="text-3xl font-bold text-foreground">
+          Budget Optimization
+        </h1>
+        <p className="text-muted-foreground">
+          AI-powered budget allocation and spending recommendations
+        </p>
       </div>
 
       {/* Budget Overview Cards */}
@@ -87,7 +127,7 @@ export function BudgetOptimization() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Budget</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <IndianRupee className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">$18,500</div>
@@ -133,7 +173,9 @@ export function BudgetOptimization() {
       <Card>
         <CardHeader>
           <CardTitle>Campaign Budget Status</CardTitle>
-          <CardDescription>Current spending and performance by campaign</CardDescription>
+          <CardDescription>
+            Current spending and performance by campaign
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -149,17 +191,24 @@ export function BudgetOptimization() {
                   </div>
                   <div className="text-right">
                     <p className="font-medium">
-                      ${campaign.spent.toLocaleString()} / ${campaign.allocated.toLocaleString()}
+                      ${campaign.spent.toLocaleString()} / $
+                      {campaign.allocated.toLocaleString()}
                     </p>
-                    <p className="text-sm text-muted-foreground">{campaign.performance}x ROAS</p>
+                    <p className="text-sm text-muted-foreground">
+                      {campaign.performance}x ROAS
+                    </p>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Budget Utilization</span>
-                    <span>{Math.round((campaign.spent / campaign.allocated) * 100)}%</span>
+                    <span>
+                      {Math.round((campaign.spent / campaign.allocated) * 100)}%
+                    </span>
                   </div>
-                  <Progress value={(campaign.spent / campaign.allocated) * 100} />
+                  <Progress
+                    value={(campaign.spent / campaign.allocated) * 100}
+                  />
                 </div>
               </div>
             ))}
@@ -174,7 +223,9 @@ export function BudgetOptimization() {
             <Zap className="h-5 w-5 text-yellow-500" />
             <span>AI Budget Recommendations</span>
           </CardTitle>
-          <CardDescription>Optimize your budget allocation for better performance</CardDescription>
+          <CardDescription>
+            Optimize your budget allocation for better performance
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -182,12 +233,19 @@ export function BudgetOptimization() {
               <div className="flex items-start space-x-3">
                 <TrendingUp className="h-5 w-5 text-blue-600 mt-0.5" />
                 <div>
-                  <h4 className="font-medium text-blue-900">Increase Brand Awareness Q2 Budget</h4>
+                  <h4 className="font-medium text-blue-900">
+                    Increase Brand Awareness Q2 Budget
+                  </h4>
                   <p className="text-sm text-blue-700 mt-1">
-                    This campaign is underspending with high ROAS potential. Recommend increasing budget by $2,000 for
-                    23% more conversions.
+                    This campaign is underspending with high ROAS potential.
+                    Recommend increasing budget by $2,000 for 23% more
+                    conversions.
                   </p>
-                  <Button variant="outline" size="sm" className="mt-2 bg-transparent">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-2 bg-transparent"
+                  >
                     Apply Recommendation
                   </Button>
                 </div>
@@ -198,12 +256,18 @@ export function BudgetOptimization() {
               <div className="flex items-start space-x-3">
                 <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
                 <div>
-                  <h4 className="font-medium text-yellow-900">Pause Product Launch Campaign</h4>
+                  <h4 className="font-medium text-yellow-900">
+                    Pause Product Launch Campaign
+                  </h4>
                   <p className="text-sm text-yellow-700 mt-1">
-                    Low ROAS (2.9x) and high spend rate. Consider pausing and reallocating $1,500 to better performing
-                    campaigns.
+                    Low ROAS (2.9x) and high spend rate. Consider pausing and
+                    reallocating $1,500 to better performing campaigns.
                   </p>
-                  <Button variant="outline" size="sm" className="mt-2 bg-transparent">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-2 bg-transparent"
+                  >
                     Review Campaign
                   </Button>
                 </div>
@@ -218,7 +282,9 @@ export function BudgetOptimization() {
         <Card>
           <CardHeader>
             <CardTitle>ROI Forecast</CardTitle>
-            <CardDescription>Projected ROI with current vs optimized budget allocation</CardDescription>
+            <CardDescription>
+              Projected ROI with current vs optimized budget allocation
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -251,7 +317,9 @@ export function BudgetOptimization() {
         <Card>
           <CardHeader>
             <CardTitle>Platform Budget Allocation</CardTitle>
-            <CardDescription>Current vs recommended budget distribution</CardDescription>
+            <CardDescription>
+              Current vs recommended budget distribution
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -272,12 +340,16 @@ export function BudgetOptimization() {
       <Card>
         <CardHeader>
           <CardTitle>Budget Simulator</CardTitle>
-          <CardDescription>Adjust total budget to see projected impact on performance</CardDescription>
+          <CardDescription>
+            Adjust total budget to see projected impact on performance
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
             <div>
-              <label className="text-sm font-medium">Monthly Budget: ${budgetSlider[0].toLocaleString()}</label>
+              <label className="text-sm font-medium">
+                Monthly Budget: ${budgetSlider[0].toLocaleString()}
+              </label>
               <Slider
                 value={budgetSlider}
                 onValueChange={setBudgetSlider}
@@ -290,21 +362,29 @@ export function BudgetOptimization() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-4 bg-muted rounded-lg">
-                <p className="text-sm text-muted-foreground">Projected Conversions</p>
-                <p className="text-2xl font-bold">{Math.round(budgetSlider[0] * 0.012)}</p>
+                <p className="text-sm text-muted-foreground">
+                  Projected Conversions
+                </p>
+                <p className="text-2xl font-bold">
+                  {Math.round(budgetSlider[0] * 0.012)}
+                </p>
               </div>
               <div className="p-4 bg-muted rounded-lg">
                 <p className="text-sm text-muted-foreground">Estimated ROAS</p>
-                <p className="text-2xl font-bold">{(4.2 + (budgetSlider[0] - 75000) * 0.00001).toFixed(1)}x</p>
+                <p className="text-2xl font-bold">
+                  {(4.2 + (budgetSlider[0] - 75000) * 0.00001).toFixed(1)}x
+                </p>
               </div>
               <div className="p-4 bg-muted rounded-lg">
                 <p className="text-sm text-muted-foreground">Revenue Impact</p>
-                <p className="text-2xl font-bold">${Math.round(budgetSlider[0] * 4.2).toLocaleString()}</p>
+                <p className="text-2xl font-bold">
+                  ${Math.round(budgetSlider[0] * 4.2).toLocaleString()}
+                </p>
               </div>
             </div>
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
