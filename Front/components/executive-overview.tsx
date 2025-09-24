@@ -23,7 +23,6 @@ import {
 } from "recharts";
 import {
   TrendingUp,
-  DollarSign,
   MousePointer,
   Eye,
   Users,
@@ -32,15 +31,16 @@ import {
   Linkedin,
   Twitter,
   Loader2,
+  IndianRupee,
 } from "lucide-react";
 
 const kpiData = [
-  { name: "Jan", roi: 4.2, ctr: 2.8, conversions: 145 },
-  { name: "Feb", roi: 4.8, ctr: 3.1, conversions: 167 },
-  { name: "Mar", roi: 5.2, ctr: 3.4, conversions: 189 },
-  { name: "Apr", roi: 4.9, ctr: 3.2, conversions: 201 },
-  { name: "May", roi: 5.8, ctr: 3.7, conversions: 234 },
-  { name: "Jun", roi: 6.1, ctr: 3.9, conversions: 267 },
+  { name: "Jan", roi: 4.2, ctr: 2.8 },
+  { name: "Feb", roi: 4.8, ctr: 3.1 },
+  { name: "Mar", roi: 5.2, ctr: 3.4 },
+  { name: "Apr", roi: 4.9, ctr: 3.2},
+  { name: "May", roi: 5.8, ctr: 3.7 },
+  { name: "Jun", roi: 6.1, ctr: 3.9},
 ];
 
 const campaignPerformance = [
@@ -202,37 +202,34 @@ export function ExecutiveOverview() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total ROI</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <IndianRupee className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-  <div className="text-xl sm:text-2xl font-bold">
-    {loading ? (
-      <div className="flex items-center space-x-2">
-        <Loader2 className="h-4 w-4 animate-spin" />
-        <span>Loading...</span>
-      </div>
-    ) : error ? (
-      <span className="text-red-600">Error</span>
-    ) : roi !== null ? (
-      `${roi.toFixed(2)}%`
-    ) : (
-      "No data"
-    )}
-  </div>
+            <div className="text-xl sm:text-2xl font-bold">
+              {loading ? (
+                <div className="flex items-center space-x-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Loading...</span>
+                </div>
+              ) : error ? (
+                <span className="text-red-600">Error</span>
+              ) : roi !== null ? (
+                `${roi.toFixed(2)}%`
+              ) : (
+                "No data"
+              )}
+            </div>
 
-  {!loading && !error && roi !== null && (
-    <div className="flex items-center text-xs text-green-600">
-      <TrendingUp className="h-3 w-3 mr-1" />
-      {roi >= 0 ? "+" : "-"}
-      {roi.toFixed(1)}% from last month
-    </div>
-  )}
+            {!loading && !error && roi !== null && (
+              <div className="flex items-center text-xs text-green-600">
+                <TrendingUp className="h-3 w-3 mr-1" />
+                {roi >= 0 ? "+" : "-"}
+                {roi.toFixed(1)}% from last month
+              </div>
+            )}
 
-  {error && (
-    <p className="text-xs text-red-600 mt-1">{error}</p>
-  )}
-</CardContent>
-
+            {error && <p className="text-xs text-red-600 mt-1">{error}</p>}
+          </CardContent>
         </Card>
 
         {/* Click-Through Rate Card */}
@@ -301,13 +298,13 @@ export function ExecutiveOverview() {
                 <Line
                   type="monotone"
                   dataKey="roi"
-                  stroke="hsl(var(--primary))"
+                  stroke="var(--chart-1)"
                   strokeWidth={2}
                 />
                 <Line
                   type="monotone"
-                  dataKey="conversions"
-                  stroke="hsl(var(--secondary))"
+                  dataKey="ctr"
+                  stroke="var(--chart-2)"
                   strokeWidth={2}
                 />
               </LineChart>
