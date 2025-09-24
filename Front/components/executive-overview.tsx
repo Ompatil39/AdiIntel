@@ -98,6 +98,7 @@ export function ExecutiveOverview() {
   const [roi, setRoi] = useState<number | null>(null);
   const [conversions, setConversions] = useState<number | null>(null);
   const [campaignScore, setCampaignScore] = useState<number | null>(null);
+  const [platformMetrics, setPlatformMetrics] = useState<any[]>([]);
   const [ctr, setCtr] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -177,8 +178,27 @@ export function ExecutiveOverview() {
       }
     };
 
-    fetchCampaignScore();
+    const fetchPlatformData = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch("http://127.0.0.1:5000/getPlatformData");
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setPlatformMetrics(data);
+        } else {
+          throw new Error("Invalid platform data");
+        }
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to load platform data"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    fetchPlatformData();
+    fetchCampaignScore();
     fetchConversions();
     fetchROI();
     fetchCTR();
@@ -413,19 +433,33 @@ export function ExecutiveOverview() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3 sm:space-y-4">
-            {platformData.map((platform) => {
-              const IconComponent = platform.icon;
+            {platformMetrics.length === 0 && !loading && (
+              <p className="text-sm text-muted-foreground">No data available</p>
+            )}
+
+            {platformMetrics.map((platform) => {
+              const IconComponent =
+                platform.platform.toLowerCase() === "google"
+                  ? Chrome
+                  : platform.platform.toLowerCase() === "facebook"
+                  ? Facebook
+                  : platform.platform.toLowerCase() === "linkedin"
+                  ? Linkedin
+                  : platform.platform.toLowerCase() === "twitter"
+                  ? Twitter
+                  : null;
+
               return (
                 <div
                   key={platform.platform}
-                  className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 border rounded-xl space-y-3 sm:space-y-0 ${platform.bgColor} border-l-4 border-l-current transition-all hover:shadow-md`}
+                  className={`flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 border rounded-xl space-y-3 sm:space-y-0 bg-white border-l-4 border-l-current transition-all hover:shadow-md`}
                 >
                   <div className="flex items-center space-x-4">
-                    <div
-                      className={`p-2 rounded-lg bg-white shadow-sm ${platform.color}`}
-                    >
-                      <IconComponent className="h-5 w-5" />
-                    </div>
+                    {IconComponent && (
+                      <div className="p-2 rounded-lg bg-white shadow-sm text-blue-600">
+                        <IconComponent className="h-5 w-5" />
+                      </div>
+                    )}
                     <div className="min-w-0">
                       <div className="flex items-center space-x-2">
                         <p className="font-semibold text-base">
@@ -433,27 +467,28 @@ export function ExecutiveOverview() {
                         </p>
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-medium ${getPerformanceColor(
-                            platform.performance
+                            "good"
                           )}`}
                         >
-                          {platform.performance}
+                          {/* You can compute performance if you want */}
+                          good
                         </span>
                       </div>
                       <p className="text-sm text-muted-foreground flex items-center space-x-1">
                         <Users className="h-3 w-3" />
-                        <span>{platform.conversions} conversions</span>
+                        <span>{platform.conversion} conversions</span>
                       </p>
                     </div>
                   </div>
                   <div className="text-left sm:text-right">
                     <div className="flex items-center space-x-1 justify-start sm:justify-end">
                       <p className="font-bold text-lg text-green-600">
-                        ₹{platform.spend.toLocaleString()}
+                        ₹{platform.cost.toLocaleString()}
                       </p>
                     </div>
                     <p className="text-sm text-muted-foreground flex items-center space-x-1 justify-start sm:justify-end">
                       <MousePointer className="h-3 w-3" />
-                      <span>${platform.cpc} CPC</span>
+                      <span>${platform.cpc.toFixed(2)} CPC</span>
                     </p>
                   </div>
                 </div>
