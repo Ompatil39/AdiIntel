@@ -23,7 +23,6 @@ import {
 } from "recharts";
 import {
   TrendingUp,
-  DollarSign,
   MousePointer,
   Eye,
   Users,
@@ -32,15 +31,16 @@ import {
   Linkedin,
   Twitter,
   Loader2,
+  IndianRupee,
 } from "lucide-react";
 
 const kpiData = [
-  { name: "Jan", roi: 4.2, ctr: 2.8, conversions: 145 },
-  { name: "Feb", roi: 4.8, ctr: 3.1, conversions: 167 },
-  { name: "Mar", roi: 5.2, ctr: 3.4, conversions: 189 },
-  { name: "Apr", roi: 4.9, ctr: 3.2, conversions: 201 },
-  { name: "May", roi: 5.8, ctr: 3.7, conversions: 234 },
-  { name: "Jun", roi: 6.1, ctr: 3.9, conversions: 267 },
+  { name: "Jan", roi: 4.2, ctr: 2.8 },
+  { name: "Feb", roi: 4.8, ctr: 3.1 },
+  { name: "Mar", roi: 5.2, ctr: 3.4 },
+  { name: "Apr", roi: 4.9, ctr: 3.2 },
+  { name: "May", roi: 5.8, ctr: 3.7 },
+  { name: "Jun", roi: 6.1, ctr: 3.9 },
 ];
 
 const campaignPerformance = [
@@ -95,83 +95,94 @@ const platformData = [
 ];
 
 export function ExecutiveOverview() {
-  const [roi, setROI] = useState<number | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [roi, setRoi] = useState<number | null>(null);
+  const [conversions, setConversions] = useState<number | null>(null);
+  const [campaignScore, setCampaignScore] = useState<number | null>(null);
+  const [ctr, setCtr] = useState<number | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const FLASK_BASE_URL = "http://localhost:5000";
 
   useEffect(() => {
-    let isMounted = true; // Prevent state updates if component unmounts
-
-    const initializeData = async () => {
+    const fetchROI = async () => {
       try {
         setLoading(true);
-        setError(null);
-
-        // Step 1: Trigger data fetch from Postman API
-        console.log("🚀 Starting data fetch...");
-        const dataResponse = await fetch(`${FLASK_BASE_URL}/`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!dataResponse.ok) {
-          throw new Error(`Data fetch failed: ${dataResponse.status}`);
+        const res = await fetch("http://127.0.0.1:5000/getROI");
+        const data = await res.json();
+        if (typeof data.roi === "number") {
+          setRoi(data.roi);
+        } else {
+          throw new Error("Invalid ROI data");
         }
-
-        const dataResult = await dataResponse.json();
-        console.log("✅ Data fetch initiated:", dataResult);
-
-        // Step 2: Wait for data insertion to complete
-        console.log("⏳ Waiting for data insertion...");
-        await new Promise(resolve => setTimeout(resolve, 0)); // Wait 5 seconds
-
-        // Step 3: Calculate ROI
-        console.log("💰 Calculating ROI...");
-        const roiResponse = await fetch(`${FLASK_BASE_URL}/calcROI`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!roiResponse.ok) {
-          throw new Error(`ROI calculation failed: ${roiResponse.status}`);
-        }
-
-        const roiResult = await roiResponse.json();
-        console.log("📊 ROI result:", roiResult);
-
-        if (isMounted) {
-          if (roiResult.status === "success" && typeof roiResult.roi === "number") {
-            setROI(roiResult.roi);
-          } else {
-            throw new Error(roiResult.message || "Invalid ROI response");
-          }
-        }
-
       } catch (err) {
-        console.error("❌ Error:", err);
-        if (isMounted) {
-          setError(`${err instanceof Error ? err.message : 'Unknown error'}`);
-        }
+        setError(err instanceof Error ? err.message : "Failed to load ROI");
       } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     };
 
-    initializeData();
-
-    // Cleanup function
-    return () => {
-      isMounted = false;
+    const fetchCTR = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch("http://127.0.0.1:5000/getCTR");
+        const data = await res.json();
+        if (typeof data.ctr === "number") {
+          setCtr(data.ctr);
+        } else {
+          throw new Error("Invalid CTR data");
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load CTR");
+      } finally {
+        setLoading(false);
+      }
     };
-  }, []); // Empty dependency array - runs only once on mount
+
+    const fetchConversions = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch("http://127.0.0.1:5000/getConversions");
+        const data = await res.json();
+        if (typeof data.total_conversions === "number") {
+          setConversions(data.total_conversions);
+        } else {
+          throw new Error("Invalid conversions data");
+        }
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to load conversions"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchCampaignScore = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch("http://127.0.0.1:5000/getCampaignScore");
+        const data = await res.json();
+        if (typeof data.campaign_score === "number") {
+          setCampaignScore(data.campaign_score);
+        } else {
+          throw new Error("Invalid Campaign Score data");
+        }
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to load Campaign Score"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCampaignScore();
+
+    fetchConversions();
+    fetchROI();
+    fetchCTR();
+  }, []);
 
   const getPerformanceColor = (performance: string) => {
     switch (performance) {
@@ -199,40 +210,35 @@ export function ExecutiveOverview() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
         {/* Total ROI Card */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <Card className="shadow-md">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">Total ROI</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <IndianRupee className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-  <div className="text-xl sm:text-2xl font-bold">
-    {loading ? (
-      <div className="flex items-center space-x-2">
-        <Loader2 className="h-4 w-4 animate-spin" />
-        <span>Loading...</span>
-      </div>
-    ) : error ? (
-      <span className="text-red-600">Error</span>
-    ) : roi !== null ? (
-      `${roi.toFixed(2)}%`
-    ) : (
-      "No data"
-    )}
-  </div>
+            <div className="text-xl font-bold">
+              {loading ? (
+                <div className="flex items-center space-x-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Loading...</span>
+                </div>
+              ) : error ? (
+                <span className="text-red-600">{error}</span>
+              ) : roi !== null ? (
+                `${roi.toFixed(2)}%`
+              ) : (
+                "No data"
+              )}
+            </div>
 
-  {!loading && !error && roi !== null && (
-    <div className="flex items-center text-xs text-green-600">
-      <TrendingUp className="h-3 w-3 mr-1" />
-      {roi >= 0 ? "+" : "-"}
-      {roi.toFixed(1)}% from last month
-    </div>
-  )}
-
-  {error && (
-    <p className="text-xs text-red-600 mt-1">{error}</p>
-  )}
-</CardContent>
-
+            {!loading && !error && roi !== null && (
+              <div className="flex items-center text-xs text-green-600 mt-1">
+                <TrendingUp className="h-3 w-3 mr-1" />
+                {roi >= 0 ? "+" : "-"}
+                {roi.toFixed(1)}% from last month
+              </div>
+            )}
+          </CardContent>
         </Card>
 
         {/* Click-Through Rate Card */}
@@ -244,11 +250,28 @@ export function ExecutiveOverview() {
             <MousePointer className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-xl sm:text-2xl font-bold">3.9%</div>
-            <div className="flex items-center text-xs text-green-600">
-              <TrendingUp className="h-3 w-3 mr-1" />
-              +5.4% from last month
+            <div className="text-xl sm:text-2xl font-bold">
+              {loading ? (
+                <div className="flex items-center space-x-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Loading...</span>
+                </div>
+              ) : error ? (
+                <span className="text-red-600">{error}</span>
+              ) : ctr !== null ? (
+                `${ctr.toFixed(2)}%`
+              ) : (
+                "No data"
+              )}
             </div>
+
+            {!loading && !error && ctr !== null && (
+              <div className="flex items-center text-xs text-green-600 mt-1">
+                <TrendingUp className="h-3 w-3 mr-1" />
+                {ctr >= 0 ? "+" : "-"}
+                {ctr.toFixed(1)}% from last month
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -259,11 +282,27 @@ export function ExecutiveOverview() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-xl sm:text-2xl font-bold">267</div>
-            <div className="flex items-center text-xs text-green-600">
-              <TrendingUp className="h-3 w-3 mr-1" />
-              +14.1% from last month
+            <div className="text-xl sm:text-2xl font-bold">
+              {loading ? (
+                <div className="flex items-center space-x-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Loading...</span>
+                </div>
+              ) : error ? (
+                <span className="text-red-600">{error}</span>
+              ) : conversions !== null ? (
+                conversions
+              ) : (
+                "No data"
+              )}
             </div>
+
+            {!loading && !error && conversions !== null && (
+              <div className="flex items-center text-xs text-green-600 mt-1">
+                <TrendingUp className="h-3 w-3 mr-1" />
+                +14.1% from last month
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -276,8 +315,24 @@ export function ExecutiveOverview() {
             <Eye className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-xl sm:text-2xl font-bold">87%</div>
-            <Progress value={87} className="mt-2" />
+            <div className="text-xl sm:text-2xl font-bold">
+              {loading ? (
+                <div className="flex items-center space-x-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Loading...</span>
+                </div>
+              ) : error ? (
+                <span className="text-red-600">{error}</span>
+              ) : campaignScore !== null ? (
+                `${campaignScore.toFixed(0)}%`
+              ) : (
+                "No data"
+              )}
+            </div>
+
+            {!loading && !error && campaignScore !== null && (
+              <Progress value={campaignScore} className="mt-2" />
+            )}
           </CardContent>
         </Card>
       </div>
@@ -301,13 +356,13 @@ export function ExecutiveOverview() {
                 <Line
                   type="monotone"
                   dataKey="roi"
-                  stroke="hsl(var(--primary))"
+                  stroke="var(--chart-1)"
                   strokeWidth={2}
                 />
                 <Line
                   type="monotone"
-                  dataKey="conversions"
-                  stroke="hsl(var(--secondary))"
+                  dataKey="ctr"
+                  stroke="var(--chart-2)"
                   strokeWidth={2}
                 />
               </LineChart>
@@ -358,7 +413,7 @@ export function ExecutiveOverview() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3 sm:space-y-4">
-            {platformData.map((platform, index) => {
+            {platformData.map((platform) => {
               const IconComponent = platform.icon;
               return (
                 <div
@@ -392,7 +447,6 @@ export function ExecutiveOverview() {
                   </div>
                   <div className="text-left sm:text-right">
                     <div className="flex items-center space-x-1 justify-start sm:justify-end">
-                      {/* <IndianRupee className="h-4 w-4 text-green-600" /> */}
                       <p className="font-bold text-lg text-green-600">
                         ₹{platform.spend.toLocaleString()}
                       </p>
