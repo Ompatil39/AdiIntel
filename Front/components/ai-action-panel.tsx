@@ -15,6 +15,12 @@ import {
   ChevronRight,
   X,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const handleAi = () => {
+  console.log("Logging out...");
+  // logout logic
+};
 
 export function AIActionPanel() {
   const [collapsed, setCollapsed] = useState(false);
@@ -240,6 +246,22 @@ export function AIActionPanel() {
           </div>
         </div>
       </ScrollArea>
+
+      {/* Logout Button (Desktop) */}
+      <div className="p-4 border-t border-sidebar-border">
+        <Button
+          variant="ghost"
+          onClick={handleAi}
+          className={cn(
+            "w-full justify-start text-left text-[var(--primary-500)]",
+            collapsed ? "px-2" : "px-3",
+            "hover:bg-[var(--primary-100)] hover:text-[var(--primary-700)]"
+          )}
+        >
+          <Bot className={cn("h-4 w-4", collapsed ? "" : "mr-3")} />
+          {!collapsed && <span className="text-sm">AI Conversation</span>}
+        </Button>
+      </div>
     </div>
   );
 }
