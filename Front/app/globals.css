@@ -1,0 +1,314 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* Importing the comprehensive AdIntelli color system */
+/* 
+===================================================
+🎨 AdIntelli Complete Color System - Final Palette
+===================================================
+Eye-friendly, accessible, marketing dashboard optimized
+Last Updated: September 2025
+*/
+
+:root {
+  /* ===========================================
+     🎯 CORE BRAND COLORS
+     =========================================== */
+
+  /* Primary Brand Colors (Blue Family) */
+  --primary-900: #1e3a8a; /* Darkest blue - headers, navigation */
+  --primary-800: #1e40af; /* Very dark blue - active states */
+  --primary-700: #1d4ed8; /* Main blue - primary buttons */
+  --primary-600: #2563eb; /* Medium blue - secondary buttons */
+  --primary-500: #3b82f6; /* Standard blue - links, highlights */
+  --primary-400: #60a5fa; /* Light blue - icons */
+  --primary-300: #93c5fd; /* Light blue - hover states */
+  --primary-200: #bfdbfe; /* Very light blue - selected states */
+  --primary-100: #dbeafe; /* Lightest blue - backgrounds */
+  --primary-50: #eff6ff; /* Barely blue - subtle backgrounds */
+
+  /* Secondary Brand Colors (Green Family) */
+  --secondary-900: #064e3b; /* Darkest green - emphasis */
+  --secondary-800: #065f46; /* Very dark green - text on light bg */
+  --secondary-700: #047857; /* Dark green - success emphasis */
+  --secondary-600: #059669; /* Medium green - success buttons */
+  --secondary-500: #10b981; /* Main green - success states */
+  --secondary-400: #34d399; /* Light green - success icons */
+  --secondary-300: #6ee7b7; /* Light green - positive metrics */
+  --secondary-200: #a7f3d0; /* Very light green - success hover */
+  --secondary-100: #d1fae5; /* Lightest green - success backgrounds */
+  --secondary-50: #ecfdf5; /* Barely green - subtle success bg */
+
+  /* ===========================================
+     📊 CHART & DATA VISUALIZATION COLORS
+     =========================================== */
+
+  /* Primary Chart Colors (8-color accessible palette) */
+  --chart-1: #3b82f6; /* Blue - Primary metric (Impressions, Traffic) */
+  --chart-2: #10b981; /* Green - Secondary metric (Conversions, Sales) */
+  --chart-3: #f59e0b; /* Amber - Third metric (Warnings, Opportunities) */
+  --chart-4: #8b5cf6; /* Purple - Fourth metric (AI Insights, Predictions) */
+  --chart-5: #ef4444; /* Red - Fifth metric (Errors, Declines) */
+  --chart-6: #06b6d4; /* Cyan - Sixth metric (Engagement, CTR) */
+  --chart-7: #84cc16; /* Lime - Seventh metric (Growth, Trends) */
+  --chart-8: #f97316; /* Orange - Eighth metric (Alerts, Actions) */
+
+  /* Performance Score Colors */
+  --performance-excellent: #10b981; /* 90-100% - Bright Green */
+  --performance-good: #84cc16; /* 70-89% - Lime Green */
+  --performance-average: #f59e0b; /* 50-69% - Amber */
+  --performance-poor: #f97316; /* 30-49% - Orange */
+  --performance-critical: #ef4444; /* 0-29% - Red */
+
+  /* Trend Colors */
+  --trend-up: #10b981; /* Positive trend - Green */
+  --trend-down: #ef4444; /* Negative trend - Red */
+  --trend-stable: #6b7280; /* Stable trend - Gray */
+
+  /* ===========================================
+     🚦 STATUS & ALERT COLORS
+     =========================================== */
+
+  /* Success Colors */
+  --success-900: #064e3b; /* Darkest success */
+  --success-800: #065f46; /* Very dark success */
+  --success-700: #047857; /* Dark success */
+  --success-600: #059669; /* Medium success */
+  --success-500: #10b981; /* Main success */
+  --success-400: #34d399; /* Light success */
+  --success-300: #6ee7b7; /* Lighter success */
+  --success-200: #a7f3d0; /* Very light success */
+  --success-100: #d1fae5; /* Light success background */
+  --success-50: #ecfdf5; /* Barely success background */
+
+  /* Warning Colors */
+  --warning-900: #92400e; /* Darkest warning */
+  --warning-800: #b45309; /* Very dark warning */
+  --warning-700: #d97706; /* Dark warning */
+  --warning-600: #ea580c; /* Medium warning */
+  --warning-500: #f59e0b; /* Main warning */
+  --warning-400: #fbbf24; /* Light warning */
+  --warning-300: #fcd34d; /* Lighter warning */
+  --warning-200: #fde68a; /* Very light warning */
+  --warning-100: #fef3c7; /* Light warning background */
+  --warning-50: #fffbeb; /* Barely warning background */
+
+  /* Danger/Error Colors */
+  --danger-900: #7f1d1d; /* Darkest error */
+  --danger-800: #991b1b; /* Very dark error */
+  --danger-700: #dc2626; /* Dark error */
+  --danger-600: #e11d48; /* Medium error */
+  --danger-500: #ef4444; /* Main error */
+  --danger-400: #f87171; /* Light error */
+  --danger-300: #fca5a5; /* Lighter error */
+  --danger-200: #fecaca; /* Very light error */
+  --danger-100: #fee2e2; /* Light error background */
+  --danger-50: #fef2f2; /* Barely error background */
+
+  /* Info Colors */
+  --info-900: #0c4a6e; /* Darkest info */
+  --info-800: #075985; /* Very dark info */
+  --info-700: #0369a1; /* Dark info */
+  --info-600: #0284c7; /* Medium info */
+  --info-500: #0ea5e9; /* Main info */
+  --info-400: #38bdf8; /* Light info */
+  --info-300: #7dd3fc; /* Lighter info */
+  --info-200: #bae6fd; /* Very light info */
+  --info-100: #e0f2fe; /* Light info background */
+  --info-50: #f0f9ff; /* Barely info background */
+
+  /* ===========================================
+     🎨 NEUTRAL & BACKGROUND COLORS
+     =========================================== */
+
+  /* Neutral Colors (Gray Scale) */
+  --neutral-900: #111827; /* Darkest - main text, headers */
+  --neutral-800: #1f2937; /* Dark - headings, emphasis */
+  --neutral-700: #374151; /* Medium dark - subheadings */
+  --neutral-600: #4b5563; /* Medium - secondary text */
+  --neutral-500: #6b7280; /* Mid gray - supporting text, icons */
+  --neutral-400: #9ca3af; /* Light gray - placeholder text */
+  --neutral-300: #d1d5db; /* Lighter gray - borders, dividers */
+  --neutral-200: #e5e7eb; /* Very light - subtle borders */
+  --neutral-100: #f3f4f6; /* Lightest - card backgrounds */
+  --neutral-50: #f9fafb; /* Barely gray - main background */
+
+  /* Special Background Colors */
+  --bg-primary: #ffffff; /* Pure white - cards, modals, content */
+  --bg-secondary: #f9fafb; /* Off-white - main dashboard background */
+  --bg-tertiary: #f3f4f6; /* Light gray - sidebar, sections */
+  --bg-quaternary: #e5e7eb; /* Medium gray - disabled states */
+
+  /* Text Colors for Accessibility */
+  --text-primary: #111827; /* Primary text - highest contrast */
+  --text-secondary: #4b5563; /* Secondary text */
+  --text-tertiary: #6b7280; /* Tertiary text */
+  --text-disabled: #9ca3af; /* Disabled text */
+  --text-inverse: #ffffff; /* Text on dark backgrounds */
+
+  /* Mapping AdIntelli colors to Tailwind design tokens */
+  --background: var(--bg-secondary);
+  --foreground: var(--text-primary);
+  --card: var(--bg-primary);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-primary);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--primary-700);
+  --primary-foreground: var(--text-inverse);
+  --secondary: var(--neutral-100);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--neutral-100);
+  --muted-foreground: var(--text-secondary);
+  --accent: var(--primary-500);
+  --accent-foreground: var(--text-inverse);
+  --destructive: var(--danger-500);
+  --destructive-foreground: var(--text-inverse);
+  --border: var(--neutral-200);
+  --input: var(--bg-primary);
+  --ring: var(--primary-500);
+  --radius: 0.5rem;
+  --sidebar: var(--bg-primary);
+  --sidebar-foreground: var(--text-primary);
+  --sidebar-primary: var(--neutral-100);
+  --sidebar-primary-foreground: var(--text-primary);
+  --sidebar-accent: var(--primary-500);
+  --sidebar-accent-foreground: var(--text-inverse);
+  --sidebar-border: var(--neutral-200);
+  --sidebar-ring: var(--primary-500);
+}
+
+.dark {
+  /* Dark mode using AdIntelli color system */
+  --background: var(--neutral-900);
+  --foreground: var(--neutral-50);
+  --card: var(--neutral-800);
+  --card-foreground: var(--neutral-50);
+  --popover: var(--neutral-800);
+  --popover-foreground: var(--neutral-50);
+  --primary: var(--primary-500);
+  --primary-foreground: var(--neutral-900);
+  --secondary: var(--neutral-700);
+  --secondary-foreground: var(--neutral-50);
+  --muted: var(--neutral-700);
+  --muted-foreground: var(--neutral-300);
+  --accent: var(--primary-400);
+  --accent-foreground: var(--neutral-900);
+  --destructive: var(--danger-400);
+  --destructive-foreground: var(--neutral-50);
+  --border: var(--neutral-700);
+  --input: var(--neutral-800);
+  --ring: var(--primary-400);
+  --sidebar: var(--neutral-800);
+  --sidebar-foreground: var(--neutral-50);
+  --sidebar-primary: var(--primary-500);
+  --sidebar-primary-foreground: var(--neutral-50);
+  --sidebar-accent: var(--neutral-700);
+  --sidebar-accent-foreground: var(--neutral-50);
+  --sidebar-border: var(--neutral-700);
+  --sidebar-ring: var(--primary-400);
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Adding AdIntelli-specific utility classes */
+/* Dashboard Layout Classes */
+.dashboard {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.sidebar {
+  background: var(--bg-primary);
+  border-right: 1px solid var(--border);
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+}
+
+.card:hover {
+  background: var(--bg-secondary);
+  border-color: var(--neutral-300);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* Status Classes */
+.status-excellent {
+  color: var(--performance-excellent);
+}
+.status-good {
+  color: var(--performance-good);
+}
+.status-average {
+  color: var(--performance-average);
+}
+.status-poor {
+  color: var(--performance-poor);
+}
+.status-critical {
+  color: var(--performance-critical);
+}
+
+/* Trend Classes */
+.trend-up {
+  color: var(--trend-up);
+}
+.trend-down {
+  color: var(--trend-down);
+}
+.trend-stable {
+  color: var(--trend-stable);
+}
