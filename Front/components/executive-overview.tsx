@@ -22,7 +22,7 @@ import {
 } from "recharts";
 import {
   TrendingUp,
-  DollarSign,
+  IndianRupee,
   MousePointer,
   Eye,
   Users,
@@ -121,7 +121,7 @@ export function ExecutiveOverview() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total ROI</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <IndianRupee className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold">6.1x</div>
@@ -296,9 +296,9 @@ export function ExecutiveOverview() {
                   </div>
                   <div className="text-left sm:text-right">
                     <div className="flex items-center space-x-1 justify-start sm:justify-end">
-                      <DollarSign className="h-4 w-4 text-green-600" />
+                      {/* <IndianRupee className="h-4 w-4 text-green-600" /> */}
                       <p className="font-bold text-lg text-green-600">
-                        ${platform.spend.toLocaleString()}
+                        ₹{platform.spend.toLocaleString()}
                       </p>
                     </div>
                     <p className="text-sm text-muted-foreground flex items-center space-x-1 justify-start sm:justify-end">
