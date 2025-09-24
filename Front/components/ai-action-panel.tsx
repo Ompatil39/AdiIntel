@@ -18,8 +18,8 @@ import {
 import { cn } from "@/lib/utils";
 
 const handleAi = () => {
-  console.log("Logging out...");
-  // logout logic
+  console.log("AI Conversation initiated...");
+  // AI conversation logic
 };
 
 export function AIActionPanel() {
@@ -169,7 +169,9 @@ export function AIActionPanel() {
 
   if (collapsed) {
     return (
-      <div className="w-12 bg-card border-l border-border p-2 hidden lg:block">
+      // MODIFIED: Added flex utilities to position buttons at top and bottom
+      <div className="w-12 bg-card border-l border-border p-2 hidden lg:flex flex-col justify-between h-full">
+        {/* Button to expand the panel (top) */}
         <Button
           variant="ghost"
           size="sm"
@@ -177,6 +179,16 @@ export function AIActionPanel() {
           className="w-full h-10"
         >
           <ChevronRight className="h-4 w-4" />
+        </Button>
+
+        {/* ADDED: AI Conversation button in collapsed state (bottom) */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleAi}
+          className="w-full h-10 bg-[var(--primary-100)] text-[var(--primary-700)]"
+        >
+          <Bot className="h-4 w-4" />
         </Button>
       </div>
     );
@@ -247,19 +259,18 @@ export function AIActionPanel() {
         </div>
       </ScrollArea>
 
-      {/* Logout Button (Desktop) */}
+      {/* AI Conversation Button (Expanded View) */}
       <div className="p-4 border-t border-sidebar-border">
         <Button
           variant="ghost"
           onClick={handleAi}
           className={cn(
-            "w-full justify-start text-left text-[var(--primary-500)]",
-            collapsed ? "px-2" : "px-3",
-            "hover:bg-[var(--primary-100)] hover:text-[var(--primary-700)]"
+            "w-full justify-start text-left bg-[var(--primary-100)] text-[var(--primary-700)]"
+            // Note: `collapsed`-related classes are not needed here but are harmless
           )}
         >
-          <Bot className={cn("h-4 w-4", collapsed ? "" : "mr-3")} />
-          {!collapsed && <span className="text-sm">AI Conversation</span>}
+          <Bot className={cn("h-4 w-4", "mr-3")} />
+          <span>AI Conversation</span>
         </Button>
       </div>
     </div>
