@@ -1,6 +1,8 @@
 "use client";
 
+import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
+
 import {
   Card,
   CardContent,
@@ -116,6 +118,7 @@ export function CampaignManagement() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
 
   const FLASK_BASE_URL = "http://127.0.0.1:5000";
 
@@ -182,64 +185,74 @@ export function CampaignManagement() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {campaigns.map((campaign) => (
-              <div
-                key={campaign.campaign_name}
-                className="flex items-center justify-between p-4 border rounded-lg shadow-sm"
-              >
-                {/* Left Section */}
-                <div className="flex items-center space-x-4">
-                  <div>
-                    <h3 className="font-medium">{campaign.campaign_name}</h3>
-                    <div className="flex items-center space-x-2 mt-1">
-                      <Badge variant="default">Active</Badge>
-                      <span className="text-sm text-muted-foreground">
-                        ${campaign.cost.toLocaleString()} / $
-                        {campaign.sale_amount.toLocaleString()}
-                      </span>
+            <AnimatePresence>
+              {(showAll ? campaigns : campaigns.slice(0, 3)).map((campaign) => (
+                <motion.div
+                  key={campaign.campaign_name}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="flex items-center justify-between p-4 border rounded-lg shadow-sm"
+                >
+                  {/* Left Section */}
+                  <div className="flex items-center space-x-4">
+                    <div>
+                      <h3 className="font-medium">{campaign.campaign_name}</h3>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <Badge variant="default">Active</Badge>
+                        <span className="text-sm text-muted-foreground">
+                          ${campaign.cost.toLocaleString()} / $
+                          {campaign.sale_amount.toLocaleString()}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Metrics Section */}
-                <div className="flex items-center space-x-6 text-sm">
-                  <div className="text-center">
-                    <p className="font-medium">
-                      {campaign.impressions.toLocaleString()}
-                    </p>
-                    <p className="text-muted-foreground">Impressions</p>
+                  {/* Metrics Section */}
+                  <div className="flex items-center space-x-6 text-sm">
+                    <div className="text-center">
+                      <p className="font-medium">
+                        {campaign.impressions.toLocaleString()}
+                      </p>
+                      <p className="text-muted-foreground">Impressions</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="font-medium">
+                        {campaign.clicks.toLocaleString()}
+                      </p>
+                      <p className="text-muted-foreground">Clicks</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="font-medium">{campaign.conversions}</p>
+                      <p className="text-muted-foreground">Conversions</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="font-medium">{campaign.ctr}%</p>
+                      <p className="text-muted-foreground">CTR</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="font-medium">${campaign.cpc}</p>
+                      <p className="text-muted-foreground">CPC</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="font-medium">{campaign.roas}x</p>
+                      <p className="text-muted-foreground">ROAS</p>
+                    </div>
                   </div>
-                  <div className="text-center">
-                    <p className="font-medium">
-                      {campaign.clicks.toLocaleString()}
-                    </p>
-                    <p className="text-muted-foreground">Clicks</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="font-medium">{campaign.conversions}</p>
-                    <p className="text-muted-foreground">Conversions</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="font-medium">{campaign.ctr}%</p>
-                    <p className="text-muted-foreground">CTR</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="font-medium">${campaign.cpc}</p>
-                    <p className="text-muted-foreground">CPC</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="font-medium">{campaign.roas}x</p>
-                    <p className="text-muted-foreground">ROAS</p>
-                  </div>
-                </div>
-
-                {/* Optional Actions */}
-                <div className="flex items-center space-x-2">
-                  {/* Buttons like Edit, Pause/Play can go here */}
-                </div>
-              </div>
-            ))}
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
+
+          {/* View More / View Less Button */}
+          {campaigns.length > 3 && (
+            <div className="flex justify-center mt-4">
+              <Button variant="outline" onClick={() => setShowAll(!showAll)}>
+                {showAll ? "View Less" : "View More"}
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
 

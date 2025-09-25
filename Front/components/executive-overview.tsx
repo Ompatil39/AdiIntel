@@ -34,14 +34,14 @@ import {
   IndianRupee,
 } from "lucide-react";
 
-const kpiData = [
-  { name: "Jan", roi: 4.2, ctr: 2.8 },
-  { name: "Feb", roi: 4.8, ctr: 3.1 },
-  { name: "Mar", roi: 5.2, ctr: 3.4 },
-  { name: "Apr", roi: 4.9, ctr: 3.2 },
-  { name: "May", roi: 5.8, ctr: 3.7 },
-  { name: "Jun", roi: 6.1, ctr: 3.9 },
-];
+// const kpiData = [
+//   { name: "Jan", roi: 4.2, ctr: 2.8 },
+//   { name: "Feb", roi: 4.8, ctr: 3.1 },
+//   { name: "Mar", roi: 5.2, ctr: 3.4 },
+//   { name: "Apr", roi: 4.9, ctr: 3.2 },
+//   { name: "May", roi: 5.8, ctr: 3.7 },
+//   { name: "Jun", roi: 6.1, ctr: 3.9 },
+// ];
 
 const campaignPerformance = [
   { name: "Search Ads", value: 35, color: "var(--chart-1)" },
@@ -102,6 +102,17 @@ export function ExecutiveOverview() {
   const [ctr, setCtr] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // export function ExecutiveOverview() {
+  // const [roi, setRoi] = useState<number | null>(null);
+  // const [conversions, setConversions] = useState<number | null>(null);
+  // const [campaignScore, setCampaignScore] = useState<number | null>(null);
+  // const [platformMetrics, setPlatformMetrics] = useState<any[]>([]);
+  const [kpiData, setKpiData] = useState<any[]>([]);
+  const [campaignPerformance, setCampaignPerformance] = useState<any[]>([]);
+  // const [ctr, setCtr] = useState<number | null>(null);
+  // const [loading, setLoading] = useState(true);
+  // const [error, setError] = useState<string | null>(null);
 
   const FLASK_BASE_URL = "http://localhost:5000";
 
@@ -197,6 +208,47 @@ export function ExecutiveOverview() {
       }
     };
 
+    const fetchKpiData = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`${FLASK_BASE_URL}/getKpiData`);
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setKpiData(data);
+        } else {
+          throw new Error("Invalid KPI data");
+        }
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to load KPI data"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const fetchCampaignPerformance = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`${FLASK_BASE_URL}/getCampaignPerformance`);
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setCampaignPerformance(data);
+        } else {
+          throw new Error("Invalid campaign performance data");
+        }
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to load campaign performance data"
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchKpiData();
+    fetchCampaignPerformance();
     fetchPlatformData();
     fetchCampaignScore();
     fetchConversions();
@@ -367,26 +419,40 @@ export function ExecutiveOverview() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={kpiData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="roi"
-                  stroke="var(--chart-1)"
-                  strokeWidth={2}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="ctr"
-                  stroke="var(--chart-2)"
-                  strokeWidth={2}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            {loading ? (
+              <div className="flex items-center justify-center h-[300px]">
+                <Loader2 className="h-6 w-6 animate-spin" />
+              </div>
+            ) : error ? (
+              <div className="text-red-600 text-center h-[300px] flex items-center justify-center">
+                {error}
+              </div>
+            ) : kpiData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={kpiData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line
+                    type="monotone"
+                    dataKey="roi"
+                    stroke="var(--chart-1)"
+                    strokeWidth={2}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="ctr"
+                    stroke="var(--chart-2)"
+                    strokeWidth={2}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="text-center h-[300px] flex items-center justify-center">
+                No data available
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -399,24 +465,38 @@ export function ExecutiveOverview() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={campaignPerformance}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={120}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {campaignPerformance.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+            {loading ? (
+              <div className="flex items-center justify-center h-[300px]">
+                <Loader2 className="h-6 w-6 animate-spin" />
+              </div>
+            ) : error ? (
+              <div className="text-red-600 text-center h-[300px] flex items-center justify-center">
+                {error}
+              </div>
+            ) : campaignPerformance.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={campaignPerformance}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={120}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {campaignPerformance.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="text-center h-[300px] flex items-center justify-center">
+                No data available
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

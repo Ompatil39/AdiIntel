@@ -223,40 +223,25 @@ export function AIActionPanel() {
     setInputValue("");
     setIsSending(true);
 
-    try {
-      // TODO: Integrate Flask backend here
-      // Example (uncomment and adapt when integrating):
-      // const res = await fetch('http://127.0.0.1:5000/chat', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ message: trimmed })
-      // });
-      // const data = await res.json();
-      // const assistantText = data.reply; // Flask should return { reply: string }
+    // API call to Flask /chat
+    const res = await fetch("http://127.0.0.1:5000/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: trimmed }),
+    });
+    const data = await res.json();
+    const assistantText = data.reply;
 
-      // For now, simulate a short thoughtful response with a delay
-      await new Promise((r) => setTimeout(r, 600));
-      const assistantText =
-        "Got it. I’ll analyze your campaigns and suggest high-ROAS reallocations. You can also ask for a specific campaign’s CTR or CPA.";
+    const botMsg = {
+      id: `${Date.now()}-bot`,
+      role: "assistant" as const,
+      content: assistantText,
+    };
+    setMessages((m) => [...m, botMsg]);
 
-      const botMsg = {
-        id: `${Date.now()}-bot`,
-        role: "assistant" as const,
-        content: assistantText,
-      };
-      setMessages((m) => [...m, botMsg]);
-    } catch (err) {
-      const errorMsg = {
-        id: `${Date.now()}-error`,
-        role: "assistant" as const,
-        content: "Sorry, I couldn’t reach the server. Please try again.",
-      };
-      setMessages((m) => [...m, errorMsg]);
-    } finally {
-      setIsSending(false);
-      const el = scrollRef.current;
-      if (el) el.scrollTop = el.scrollHeight;
-    }
+    setIsSending(false);
+    const el = scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   };
 
   if (collapsed) {
