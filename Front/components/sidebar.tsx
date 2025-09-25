@@ -11,6 +11,7 @@ import {
   IndianRupee,
   Activity,
   LogOut,
+  Brain,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -31,6 +32,8 @@ const menuItems = [
     icon: IndianRupee,
   },
   { id: "real-time-monitoring", label: "Real-Time Monitoring", icon: Activity },
+  { id: "predictive-insights", label: "Predictive Insights", icon: Brain },
+  { id: "integrations", label: "Integrations", icon: Brain },
 ];
 
 export function Sidebar({
@@ -47,8 +50,17 @@ export function Sidebar({
   };
 
   const handleLogout = () => {
-    console.log("Logging out...");
-    // logout logic
+    try {
+      if (typeof window !== "undefined") {
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = "/login";
+      }
+    } catch {
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
+    }
   };
 
   return (

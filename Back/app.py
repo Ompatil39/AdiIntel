@@ -5,6 +5,9 @@ import numpy as np
 import time
 import requests
 import logging
+import joblib
+from tensorflow.keras.models import load_model
+import os
 from huggingface_hub import InferenceClient
 
 
@@ -136,7 +139,6 @@ def get_platform_data():
 def platform_data():
     time.sleep(1)
     return jsonify(get_platform_data())
-    time.sleep()
 
 @app.route("/getCampaignScore", methods=["GET"])
 def get_campaign_score():
@@ -336,6 +338,140 @@ def get_campaign_performance():
         logger.error(f"Error in get_campaign_performance: {str(e)}")
         return {"error": f"Failed to fetch campaign performance: {str(e)}"}
 
+# NEW ROUTES FOR CHARTS DATA
+def get_weekly_trends():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Get data for the last 7 days grouped by date
+        cursor.execute("""
+            SELECT 
+                DATE(Ad_Date) as date,
+                SUM(Impressions) as impressions,
+                SUM(Clicks) as clicks,
+                SUM(Conversions) as conversions
+            FROM campaigns 
+            WHERE Ad_Date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+            AND Ad_Date IS NOT NULL
+            AND Ad_Date != ''
+            GROUP BY DATE(Ad_Date)
+            ORDER BY date
+        """)
+        
+        # Create a dictionary to store data by date
+        db_data = {}
+        for row in cursor.fetchall():
+            date, impressions, clicks, conversions = row
+            if date:  # Only process if date is not None
+                db_data[date] = {
+                    "impressions": impressions or 0,
+                    "clicks": clicks or 0,
+                    "conversions": conversions or 0
+                }
+        
+        cursor.close()
+        conn.close()
+        
+        # Generate complete week data (last 7 days)
+        from datetime import datetime, timedelta
+        trends = []
+        days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        
+        # Start from 6 days ago to get a full week
+        for i in range(7):
+            current_date = datetime.now() - timedelta(days=6-i)
+            date_key = current_date.date()
+            day_name = days[current_date.weekday()]
+            
+            # Use database data if available, otherwise use sample data
+            if date_key in db_data:
+                data = db_data[date_key]
+            else:
+                # Generate sample data with some variation
+                base_impressions = 20000 + (i * 2000)
+                base_clicks = int(base_impressions * 0.03)  # 3% CTR
+                base_conversions = int(base_clicks * 0.02)  # 2% conversion rate
+                
+                data = {
+                    "impressions": base_impressions,
+                    "clicks": base_clicks,
+                    "conversions": base_conversions
+                }
+            
+            trends.append({
+                "date": day_name,
+                "impressions": data["impressions"],
+                "clicks": data["clicks"],
+                "conversions": data["conversions"]
+            })
+        
+        return trends
+        
+    except Exception as e:
+        logger.error(f"Error in get_weekly_trends: {str(e)}")
+        # Return sample data if there's an error
+        return [
+            {"date": "Mon", "impressions": 18000, "clicks": 540, "conversions": 12},
+            {"date": "Tue", "impressions": 22000, "clicks": 660, "conversions": 15},
+            {"date": "Wed", "impressions": 19000, "clicks": 570, "conversions": 11},
+            {"date": "Thu", "impressions": 25000, "clicks": 750, "conversions": 18},
+            {"date": "Fri", "impressions": 28000, "clicks": 840, "conversions": 21},
+            {"date": "Sat", "impressions": 15000, "clicks": 450, "conversions": 9},
+            {"date": "Sun", "impressions": 12000, "clicks": 360, "conversions": 7}
+        ]
+
+def get_device_demographics():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Get data grouped by device
+        cursor.execute("""
+            SELECT 
+                Device,
+                SUM(Impressions) as impressions,
+                SUM(Conversions) as conversions
+            FROM campaigns 
+            GROUP BY Device
+        """)
+        
+        demographics = []
+        for row in cursor.fetchall():
+            device, impressions, conversions = row
+            demographics.append({
+                "device": device or "Unknown",
+                "impressions": impressions or 0,
+                "conversions": conversions or 0
+            })
+        
+        cursor.close()
+        conn.close()
+        
+        # If no data, return sample data
+        if not demographics:
+            return [
+                {"device": "Mobile", "impressions": 45000, "conversions": 23},
+                {"device": "Desktop", "impressions": 89000, "conversions": 67},
+                {"device": "Tablet", "impressions": 23000, "conversions": 12}
+            ]
+        
+        return demographics
+    except Exception as e:
+        logger.error(f"Error in get_device_demographics: {str(e)}")
+        return [
+            {"device": "Mobile", "impressions": 45000, "conversions": 23},
+            {"device": "Desktop", "impressions": 89000, "conversions": 67},
+            {"device": "Tablet", "impressions": 23000, "conversions": 12}
+        ]
+
+@app.route('/getWeeklyTrends', methods=['GET'])
+def weekly_trends():
+    return jsonify(get_weekly_trends())
+
+@app.route('/getDeviceDemographics', methods=['GET'])
+def device_demographics():
+    return jsonify(get_device_demographics())
 
 @app.route('/getKpiData', methods=['GET'])
 def kpi_data():
@@ -345,6 +481,36 @@ def kpi_data():
 def campaign_performance():
     return jsonify(get_campaign_performance())
 
+@app.route('/getPredictiveInsights', methods=['GET'])
+def predictive_insights():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Query the predictive_insights table
+        cursor.execute("""
+            SELECT Campaign_Name, Spend, Status, CPC, Bidding_Strategy, 
+                   Conversions, Revenue, Profitable, Recommendation 
+            FROM predictive_insights
+            ORDER BY Campaign_Name
+        """)
+        
+        results = cursor.fetchall()
+        columns = [desc[0] for desc in cursor.description]
+        
+        # Convert to list of dictionaries
+        data = []
+        for row in results:
+            data.append(dict(zip(columns, row)))
+        
+        cursor.close()
+        conn.close()
+        
+        return jsonify(data)
+        
+    except Exception as e:
+        logger.error(f"Error fetching predictive insights: {str(e)}")
+        return jsonify({"error": ""}), 500
 
 
 # Initialize client once
@@ -362,6 +528,7 @@ def chat():
             model=HF_MODEL,
             messages=[
                 {"role": "system", "content": """You are a helpful assistant of the site ADIntelli and will now help user solve their problems.
+                you should not go more than 3 max lines, its your limit.
                     AdIntelli Frontend User Interface Guide
 Navigation Structure
 Main Dashboard Sections (Sidebar Navigation)
@@ -437,6 +604,137 @@ Example responses:
         reply = f"Error calling model: {str(e)}"
 
     return jsonify({"reply": reply})
+
+
+
+
+
+
+DB_CONFIG = {
+    "host": "localhost",
+    "user": "root",
+    "password": "",      # update if needed
+    "database": "adintelli"
+}
+
+MODEL_PATH = "multi_task_model2.keras"
+PLATFORM_ENCODER_PATH = "platform_encoder.save"
+BID_ENCODER_PATH = "bid_strategy_encoder.save"
+BUDGET_REC_ENCODER_PATH = "budget_rec_encoder.save"
+AUDIENCE_ENCODER_PATH = "audience_exp_encoder.save"
+SCALER_PATH = "feature_scaler.save"
+
+# ---------------- Load ML Components ----------------
+model = load_model(MODEL_PATH)
+platform_encoder = joblib.load(PLATFORM_ENCODER_PATH)
+bid_strategy_encoder = joblib.load(BID_ENCODER_PATH)
+budget_rec_encoder = joblib.load(BUDGET_REC_ENCODER_PATH)
+audience_exp_encoder = joblib.load(AUDIENCE_ENCODER_PATH)
+scaler = joblib.load(SCALER_PATH)
+
+
+# ---------------- Fetch only 1 row ----------------
+def fetch_one_campaign():
+    conn = mysql.connector.connect(**DB_CONFIG)
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("""
+        SELECT * FROM campaigns 
+        ORDER BY `Ad_ID` DESC LIMIT 1
+    """)
+    row = cursor.fetchone()
+    conn.close()
+    return row
+
+
+# ---------------- Prediction ----------------
+def predict_campaign(row):
+    row = row.copy()
+
+    # Fix platform naming (add " Ads")
+    row['Platform'] = str(row.get('Platform', 'Unknown')) + " Ads"
+    row['platform_encoded'] = platform_encoder.transform([row['Platform']])[0]
+
+    # Budget distribution parsing
+    if isinstance(row.get('recommended_budget_distribution'), str):
+        parts = row['recommended_budget_distribution'].split(',')
+        percentages = []
+        for part in parts:
+            try:
+                percent = float(part.strip().split('%')[0])
+            except:
+                percent = 0.0
+            percentages.append(percent)
+        while len(percentages) < 3:
+            percentages.append(0.0)
+        budget_alpha, budget_beta, budget_gamma = percentages
+    else:
+        budget_alpha = budget_beta = budget_gamma = 0.0
+
+    # CTR = (Clicks / Impressions) * 100
+    impressions = float(row.get("Impressions", 0))
+    clicks = float(row.get("Clicks", 0))
+    ctr = (clicks / impressions * 100) if impressions > 0 else 0.0
+
+    # ROAS = Sale_Amount / Cost
+    spend = float(row.get("Cost", 0))
+    sale_amount = float(row.get("Sale_Amount", 0))
+    roas = (sale_amount / spend) if spend > 0 else 0.0
+
+    # Prepare model input
+    X_input = np.array([[row['platform_encoded'], impressions, clicks, spend,
+                         row.get("Conversions", 0), ctr, roas,
+                         budget_alpha, budget_beta, budget_gamma]])
+    X_scaled = scaler.transform(X_input)
+    preds_list = model.predict(X_scaled)
+
+    output_names = ['campaign_score', 'roi_forecast', 'avg_perf_score', 'budget_dist',
+                    'budget_realloc', 'performance_alerts', 'budget_rec',
+                    'audience_exp', 'bid_strategy']
+    preds = {name: pred for name, pred in zip(output_names, preds_list)}
+
+    # Build result
+    result = {}
+    result["Campaign Name"] = row.get("Campaign_Name", "Unknown")
+    result["Campaign Score"] = round(float(preds['campaign_score'].ravel()[0]), 2)
+    result["Performance Alerts"] = "Triggered" if float(preds['performance_alerts'].ravel()[0]) > 0.5 else "Normal"
+    result["Budget Reallocation (%)"] = round(float(preds['budget_realloc'].ravel()[0]), 2)
+
+    bid_idx = np.argmax(preds['bid_strategy'])
+    result["Bid Strategy Optimization"] = bid_strategy_encoder.inverse_transform([bid_idx])[0]
+
+    result["ROI Forecast (ROAS)"] = round(float(preds['roi_forecast'].ravel()[0]), 2)
+    result["Avg Performance Score"] = round(float(preds['avg_perf_score'].ravel()[0]), 2)
+    result["Audience Expansion"] = "Yes" if float(preds['audience_exp'].ravel()[0]) > 0.5 else "No"
+
+    budget_idx = np.argmax(preds['budget_rec'])
+    result["Budget Recommendation"] = budget_rec_encoder.inverse_transform([budget_idx])[0]
+
+    return result
+
+
+# ---------------- Flask Route ----------------
+@app.route("/predict", methods=["POST"])
+def predict_route():
+    data = request.get_json()
+    campaign_name = data.get("campaign_name")  # <-- read from JSON body
+    if not campaign_name:
+        return jsonify({"error": "campaign_name parameter is required"}), 400
+
+    # Fetch campaign by name
+    conn = mysql.connector.connect(**DB_CONFIG)
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM campaigns WHERE Campaign_Name = %s LIMIT 1", (campaign_name,))
+    campaign = cursor.fetchone()
+    conn.close()
+
+    if not campaign:
+        return jsonify({"error": f"No campaign found with name '{campaign_name}'"}), 404
+
+    prediction = predict_campaign(campaign)
+    return jsonify(prediction)
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)

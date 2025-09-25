@@ -424,36 +424,6 @@ export function AIActionPanel() {
                 Send
               </Button>
             </div>
-
-            <div className="mt-2 flex flex-wrap gap-2">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() =>
-                  setInputValue("Where should I reallocate budget this week?")
-                }
-              >
-                Suggest budget moves
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() =>
-                  setInputValue("What is the CTR trend for Campaign_8?")
-                }
-              >
-                CTR trend
-              </Button>
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() =>
-                  setInputValue("Any creative refresh recommendations?")
-                }
-              >
-                Creative ideas
-              </Button>
-            </div>
           </div>
         </DialogContent>
       </Dialog>

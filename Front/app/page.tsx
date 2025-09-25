@@ -8,7 +8,9 @@ import { CampaignManagement } from "@/components/campaign-management";
 import { BudgetOptimization } from "@/components/budget-optimization";
 import { CreativeInsights } from "@/components/creative-insights";
 import { RealTimeMonitoring } from "@/components/real-time-monitoring";
+import { PredictiveInsights } from "@/components/predictive-insights";
 import { AIActionPanel } from "@/components/ai-action-panel";
+import { Integrations } from "@/components/integrations";
 
 export default function Dashboard() {
   const [activeSection, setActiveSection] = useState("executive-overview");
@@ -27,6 +29,10 @@ export default function Dashboard() {
         return <CreativeInsights />;
       case "real-time-monitoring":
         return <RealTimeMonitoring />;
+      case "predictive-insights":
+        return <PredictiveInsights />;
+      case "integrations":
+        return <Integrations />;
       default:
         return <ExecutiveOverview />;
     }

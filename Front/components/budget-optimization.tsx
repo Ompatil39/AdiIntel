@@ -297,16 +297,16 @@ export function BudgetOptimization() {
                   type="monotone"
                   dataKey="current"
                   stackId="1"
-                  stroke="hsl(var(--chart-1))"
-                  fill="hsl(var(--chart-1))"
+                  stroke="var(--chart-1)"
+                  fill="var(--chart-1)"
                   fillOpacity={0.3}
                 />
                 <Area
                   type="monotone"
                   dataKey="optimized"
                   stackId="2"
-                  stroke="hsl(var(--chart-2))"
-                  fill="hsl(var(--chart-2))"
+                  stroke="var(--chart-2)"
+                  fill="var(--chart-2)"
                   fillOpacity={0.3}
                 />
               </AreaChart>
@@ -328,8 +328,8 @@ export function BudgetOptimization() {
                 <XAxis dataKey="platform" />
                 <YAxis />
                 <Tooltip />
-                <Bar dataKey="current" fill="hsl(var(--chart-1))" />
-                <Bar dataKey="recommended" fill="hsl(var(--chart-2))" />
+                <Bar dataKey="current" fill="var(--chart-1)" />
+                <Bar dataKey="recommended" fill="var(--chart-2)" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
